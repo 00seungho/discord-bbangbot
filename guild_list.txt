@@ -1,0 +1,3 @@
+server len : 1
+server name
+디코봇제작
