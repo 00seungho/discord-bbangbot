@@ -119,13 +119,12 @@ async def 롤(ctx,*args):
         await ctx.channel.send(embed=embedred,reference=ctx.message)
 @bot.command()
 async def 도움말(ctx):
-    embedhelp=discord.Embed(title="도움말", description="빵먹는아이 봇은 모든 명령어를 %로 시작합니다. 문의 사항은 다음 깃허브 링크를 통해 문의해주세요.",color=0x2fa295)
-    embedhelp.add_field(name='"%메이플" 캐릭터이름', value="메이플 캐릭터를 검색합니다.\n장기 미접속 캐릭터에 대해서는 검색이 불가 할 수 있습니다.", inline=False)
-    embedhelp.add_field(name='"%롤" 닉네임', value="해당 플레이어가 현재 플레이 중인 롤 게임 정보를 가져옵니다.", inline=False)
+    embedhelp=discord.Embed(title="도움말", description="빵먹는아이 봇은 모든 명령어를 %로 시작합니다. \n문의 사항은 다음 깃허브 링크를 통해 문의해주세요. \n https://github.com/00seungho/discord-bbangbot/issues",color=0x2fa295)
+    embedhelp.add_field(name='"%메이플" 캐릭터이름', value="메이플 닉네임으로 캐릭터를 검색합니다.\nex)메이플 빵먹는비숍\n장기 미접속 캐릭터에 대해서는 검색이 불가 할 수 있습니다.", inline=False)
+    embedhelp.add_field(name='"%롤" 닉네임#코드', value="라이엇 닉네임과 코드로 해당 플레이어의 현재 게임정보를 가져옵니다.\nex)%롤 빵먹는아이#kr1", inline=False)
     embedhelp.add_field(name='"%점메추"', value="점심메뉴를 추천해줍니다.", inline=False)
     embedhelp.add_field(name='"%업데이트목록"', value="빵먹는아이봇의 최근 업데이트 목록을 보여줍니다.", inline=False)
-
-    embedhelp.add_field(name="", value="이 외의 내용은 추후 업데이트 예정입니다.", inline=False)
+    
     await ctx.channel.send(embed=embedhelp)
 
 @bot.command()
@@ -155,18 +154,5 @@ async def 업데이트목록(ctx):
                     inline=False)
     embed.set_footer(text=f"ver {log['ver']}")
     await ctx.channel.send(embed=embed)
-
-@bot.command()
-async def get_guild(ctx):
-    guild_list = bot.guilds
-    print(f"현재 디스코드 봇 가입 서버 개수 : {len(guild_list)}")
-    output_text = "\n".join([f"{i.name}" for i in guild_list])
-    print(f"목록\n {output_text}")
-    with open("guild_list.txt", "w",encoding="utf-8") as f:
-        # 파일에 텍스트 쓰기
-        f.write(f"server len : {len(guild_list)}\n")
-        f.write(f"server name\n")
-        f.write(f"{output_text}")
-
 
 bot.run(discordtoken)
