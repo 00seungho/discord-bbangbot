@@ -32,6 +32,7 @@ async def on_ready():
         f.write(f"{output_text}")
     
     await bot.change_presence(activity=discord.Game(name="명령어 목록 %도움말"))
+    
 @bot.command()
 async def 메이플(ctx,arg):
     msg = None
