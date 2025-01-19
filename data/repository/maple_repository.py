@@ -1,5 +1,7 @@
-from entity import Lunch, Maplebasic, Mapleocid
+from data.entity import Maplebasic, Mapleocid
+from sqlalchemy.sql.expression import func
 from sqlalchemy.exc import IntegrityError
+
 class MapleRepository:
     def __init__(self, session_provider):
         self._session_provider = session_provider
