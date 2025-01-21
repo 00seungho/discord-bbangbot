@@ -17,7 +17,7 @@ class TestLunchService(unittest.TestCase):
         self.provider = SessionProvider()
         self.maple_repository = MapleRepository(self.provider)
         self.maple_service = MapleService(self.maple_repository)
-        self.nickname = "빵먹는비숍"
+        self.nickname = ""
         self.character_name = "빵먹달"
         load_dotenv()
         self.api_key = os.getenv("nexonapi")

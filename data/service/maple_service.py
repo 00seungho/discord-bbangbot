@@ -7,6 +7,8 @@ class MapleService:
         self.maple_repository = maple_repository
 
     def _maple_basic_entity_to_dto(self,maple_basic:Maplebasic):
+        if maple_basic is None:
+            return None
         return MapleBasicDTO(
             id=maple_basic.id,
             image=maple_basic.image,
@@ -20,6 +22,8 @@ class MapleService:
         )
     
     def _maple_basic_dto_to_entity(self,maple_basic_dto:MapleBasicDTO):
+        if maple_basic_dto is None:
+            return None
         return Maplebasic(
             id=maple_basic_dto.id,
             level = maple_basic_dto.level,
@@ -29,10 +33,12 @@ class MapleService:
             ocid = maple_basic_dto.ocid,
             unit_class = maple_basic_dto.unit_class,
             union_lv = maple_basic_dto.union_lv,
-            dojang = maple_basic_dto.union_lv
+            dojang = maple_basic_dto.dojang
         )
     
     def _ocid_entity_to_dto(self,_ocid:Mapleocid):
+        if _ocid is None:
+            return None
         return OcidDTO(
             id= _ocid.id,
             ocid=_ocid.ocid,
@@ -40,6 +46,8 @@ class MapleService:
         )
 
     def _ocid_dto_to_entity(self,ocid_dto:OcidDTO):
+        if ocid_dto is None:
+            return None
         return Mapleocid(
             id=ocid_dto.id,
             ocid=ocid_dto.ocid,
@@ -49,7 +57,7 @@ class MapleService:
 
     def get_ocid(self,nick_name):
         """
-        ocid를 불러오는 메서드
+        닉네임문자열로 ocid를 불러오는 메서드
         """
         try:
             ocid = self.maple_repository.find_by_nick_name(nick_name)
@@ -60,7 +68,7 @@ class MapleService:
     
     def get_maple_basic(self,ocid:str):
         """
-        메이플 정보를 불러오는 메서드
+        ocid 문자열로 메이플 정보를 불러오는 메서드
         """
         try:
             maple_basic = self.maple_repository.find_by_ocid(ocid)

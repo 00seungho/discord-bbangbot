@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
-import maplestory
-import database
+from api import MaplestoryAPI
+from data import provider,config,dto,entity,repository,service
 from datetime import datetime,timedelta
 from LOL import LOLAPI
 import lunch
@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 import os
 from updatelog import UpdateLog
 import asyncio
+
+
 
 load_dotenv()
 discordtoken = os.getenv("discordbot")
@@ -18,6 +20,13 @@ discordtesttoken = os.getenv("discordtest")
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='%',intents=intents)
+
+main_provider = provider.SessionProvider()
+maple_repository = repository.MapleRepository(main_provider)
+lunch_repository = repository.LunchRepository(main_provider)
+
+maple_service = service.MapleService(maple_repository)
+lunch_service = service.LunchService(lunch_repository)
 
 @bot.event
 async def on_ready():
@@ -36,31 +45,29 @@ async def on_ready():
 @bot.command()
 async def 메이플(ctx,arg):
     msg = None
-    db = database.maplecon()
-    mapleapi = maplestory.maplestoryC()
-    ocid = db.findOcid(arg)
-    if ocid == None:
-        msg =  mapleapi.ocid(arg)
-        mapleapi.characterinfo(arg)
-    if msg != None:
-        await ctx.send(msg,reference=ctx.message)
+    mapleapi = MaplestoryAPI()
+    ocid_dto = maple_service.get_ocid(nick_name=arg)
+    if ocid_dto == None:
+        nexon_ocid_dto = mapleapi.get_nexon_to_ocid(characterName=arg)
+        maple_service.save_ocid(nexon_ocid_dto)
+        ocid_dto = maple_service.get_ocid(nick_name=arg)
     else:
-        ocid = db.findOcid(arg)
-        basic = db.findBasic(ocid)
-        dbtime = datetime.strptime(basic[1],"%Y-%m-%dT%H:%M%z")
-        yesterday = datetime.today() - timedelta(days=1)
-        if mapleapi.update_time() and yesterday.date() != dbtime.date():
-            mapleapi.updateCharacterinfo(arg)
-            basic = db.findBasic(ocid)
+        maple_basic_dto = maple_service.get_maple_basic(ocid_dto.ocid)
+        if maple_basic_dto is None or not mapleapi.is_latest_update(maple_basic_dto.date):
+            nexon_maple_basic_dto = mapleapi.get_nexon_maplebasic(ocid = ocid_dto.ocid)
+            print(nexon_maple_basic_dto)
+            maple_service.save_maple_basic(nexon_maple_basic_dto)
+            maple_basic_dto = maple_service.get_maple_basic(ocid = ocid_dto.ocid)
+
         embed=discord.Embed(title="메이플 캐릭터 정보", color=0xff7300)
-        embed.set_thumbnail(url=f"{basic[3]}")
-        embed.add_field(name="닉네임", value=f"{arg}", inline=True)
-        embed.add_field(name="길드명", value=f"{basic[2]}", inline=True)
-        embed.add_field(name="직업", value=f"{basic[5]}", inline=True)
-        embed.add_field(name="레벨", value=f"Lv.{basic[0]}", inline=True)
-        embed.add_field(name="유니온레벨", value=f"Lv.{basic[6]}", inline=True)
-        embed.add_field(name="무릉도장 기록", value=f"{basic[7]}층", inline=True)
-        embed.set_footer(text=f"갱신일자 : {basic[1]}")
+        embed.set_thumbnail(url=f"{maple_basic_dto.image}")
+        embed.add_field(name="닉네임", value=f"{ocid_dto.nickname}", inline=True)
+        embed.add_field(name="길드명", value=f"{maple_basic_dto.guild_name}", inline=True)
+        embed.add_field(name="직업", value=f"{maple_basic_dto.unit_class}", inline=True)
+        embed.add_field(name="레벨", value=f"Lv.{maple_basic_dto.level}", inline=True)
+        embed.add_field(name="유니온레벨", value=f"Lv.{maple_basic_dto.union_lv}", inline=True)
+        embed.add_field(name="무릉도장 기록", value=f"{maple_basic_dto.dojang}층", inline=True)
+        embed.set_footer(text=f"갱신일자 : {maple_basic_dto.date.isoformat()}")
         await ctx.channel.send(embed=embed,reference=ctx.message)
 
 @bot.command()
@@ -118,6 +125,8 @@ async def 롤(ctx,*args):
                             inline=False)
         await ctx.channel.send(embed=embedblue,reference=ctx.message)
         await ctx.channel.send(embed=embedred,reference=ctx.message)
+
+
 @bot.command()
 async def 도움말(ctx):
     embedhelp=discord.Embed(title="도움말", description="빵먹는아이 봇은 모든 명령어를 %로 시작합니다. \n문의 사항은 다음 깃허브 링크를 통해 문의해주세요. \n https://github.com/00seungho/discord-bbangbot/issues",color=0x2fa295)
@@ -156,4 +165,4 @@ async def 업데이트목록(ctx):
     embed.set_footer(text=f"ver {log['ver']}")
     await ctx.channel.send(embed=embed)
 
-bot.run(discordtoken)
+bot.run(discordtesttoken)
