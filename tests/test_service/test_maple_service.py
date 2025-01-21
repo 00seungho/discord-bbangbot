@@ -1,19 +1,24 @@
 import unittest
 
-from data.entity import Mapleocid,Maplebasic
-from data.repository import MapleRepository
+from data.entity import Maplebasic,Mapleocid
+from data.service import MapleService
 from data.provider import SessionProvider
-import requests
+from data.repository import MapleRepository
 from datetime import datetime, timedelta,timezone
+from data.dto import MapleBasicDTO, OcidDTO
 from dotenv import load_dotenv
 import os
 from tests.log import FunLog
+import requests
 
-class TestMapleRepository(unittest.TestCase):
+
+class TestLunchService(unittest.TestCase):
     def setUp(self):
         self.provider = SessionProvider()
         self.maple_repository = MapleRepository(self.provider)
-        self.character_name = "빵먹는비숍"
+        self.maple_service = MapleService(self.maple_repository)
+        self.nickname = "빵먹는비숍"
+        self.character_name = "빵먹달"
         load_dotenv()
         self.api_key = os.getenv("nexonapi")
         self.headers = {
@@ -21,29 +26,34 @@ class TestMapleRepository(unittest.TestCase):
         }
 
     @FunLog()
+    def test_get_ocid(self):
+        print(self.maple_service.get_ocid(self.nickname))
+
+
+    @FunLog()
+    def test_get_maple_basic(self):
+        ocid = self.maple_service.get_ocid(self.nickname).ocid
+        print(self.maple_service.get_maple_basic(ocid))
+
+
+    @FunLog()
     def test_save_ocid(self):
         urlString = f"https://open.api.nexon.com/maplestory/v1/id?character_name={self.character_name}"
         response = requests.get(urlString, headers = self.headers)
         try:
             if response.status_code == 200:
-                ocid = Mapleocid(ocid = response.json()['ocid'],
+                ocid_dto = OcidDTO(
+                    ocid = response.json()['ocid'],
                                  nickname = self.character_name)
-                self.maple_repository.save_ocid(ocid)
-                print("ocid 삽입 성공")
+                self.maple_service.save_ocid(ocid_dto)
             else:
                 raise Exception(f"{response.json()['error']['name']}")
         except Exception as e:
-            return e
-    
-    @FunLog()
-    def test_find_by_nick_name(self):
-        ocid = self.maple_repository.find_by_nick_name(self.character_name)
-        print(ocid)
+            print(e)
 
     @FunLog()
-    def test_save_maplebasic(self):
-        ocid = self.maple_repository.find_by_nick_name(self.character_name)
-        ocid_str = ocid.ocid
+    def test_save_maple_basic(self):
+        ocid_str = self.maple_service.get_ocid(self.character_name).ocid
         yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
         basicUrlString = f"https://open.api.nexon.com/maplestory/v1/character/basic?ocid={ocid_str}&date={yesterday}"
         unionUrlString = f"https://open.api.nexon.com/maplestory/v1/user/union?ocid={ocid_str}&date={yesterday}"
@@ -60,7 +70,7 @@ class TestMapleRepository(unittest.TestCase):
                 C_class = responseBasic.json()["character_class"]
                 unionLv = int(responseUnion.json()["union_level"])
                 dojang = int(responseDojang.json()["dojang_best_floor"])
-                maplebasic = Maplebasic(
+                maplebasic_dto = MapleBasicDTO(
                     level = level,
                     date = date,
                     guild_name = guild_name,
@@ -70,23 +80,8 @@ class TestMapleRepository(unittest.TestCase):
                     dojang = dojang,
                     ocid = ocid_str
                 )
-                self.maple_repository.save_maplebasic(maplebasic)
-                print(maplebasic)
+                self.maple_service.save_maple_basic(maplebasic_dto)
                 print("maplebasic 삽입 완료")
         except Exception as e:
             print(e)
             return e
-        
-        
-        
-    @FunLog()
-    def test_find_by_ocid(self):
-        print("-------------test_find_by_ocid----------")
-
-        ocid = self.maple_repository.find_by_nick_name(self.character_name)
-        ocid_str = ocid.ocid
-        maple_basic = self.maple_repository.find_by_ocid(ocid_str)
-        print(maple_basic)
-
-if __name__ == "__main__":
-    unittest.main()

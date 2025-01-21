@@ -6,7 +6,7 @@ class MapleRepository:
     def __init__(self, session_provider):
         self._session_provider = session_provider
 
-    def get_by_nick_name(self, nick_name):
+    def find_by_nick_name(self, nick_name):
         """
         주어진 닉네임을 이용해 ocid를 찾는 함수
         """
@@ -17,7 +17,7 @@ class MapleRepository:
         finally:
             session.close()
 
-    def get_by_ocid(self, ocid):
+    def find_by_ocid(self, ocid:str):
         """
         ocid를 활용해 캐릭터를 찾는 함수
         """

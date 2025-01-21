@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class MapleBasicDTO(BaseModel):
-    id: int
+    id: int = None
     unit_class: str
     level:int
     union_lv:int

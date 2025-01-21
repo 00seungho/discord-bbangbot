@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
 class OcidDTO(BaseModel):
-    id: int
+    id: int = None
     ocid: str
+    nickname: str
