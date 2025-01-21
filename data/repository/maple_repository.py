@@ -6,13 +6,13 @@ class MapleRepository:
     def __init__(self, session_provider):
         self._session_provider = session_provider
 
-    def find_by_nick_name(self, nick_name):
+    def get_by_nick_name(self, nick_name):
         """
         주어진 닉네임을 이용해 ocid를 찾는 함수
         """
         session = self._session_provider.get_session()
         try:
-            maple_ocid = session.query().filter(Mapleocid.nickname == nick_name).first()
+            maple_ocid = session.query(Mapleocid).filter(Mapleocid.nickname == nick_name).first()
             return maple_ocid
         finally:
             session.close()
@@ -23,7 +23,7 @@ class MapleRepository:
         """
         session = self._session_provider.get_session()
         try:
-            maple_basic = session.query().filter(Maplebasic.ocid == ocid).first()
+            maple_basic = session.query(Maplebasic).filter(Maplebasic.ocid == ocid).first()
             return maple_basic
         finally:
             session.close()
