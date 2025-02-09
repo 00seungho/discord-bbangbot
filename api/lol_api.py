@@ -1,7 +1,6 @@
 import requests
 import time
-import asyncio
-from datetime import datetime
+from data.dto import 
 from dotenv import load_dotenv
 import os
 
@@ -16,10 +15,10 @@ class LOLAPI():
             "Origin": "https://developer.riotgames.com",
             "X-Riot-Token": self.api_key
         }
-
-    def getpuuid(self,arg):
-        if(len(arg.split("#")) == 1):
-            return "잘못된 닉네임입니다. 소환사 태그를 같이 입력해주세요.",-1
+        
+    def getpuuid(self,nick_name) -> :
+        if(len(nick_name.split("#")) == 1):
+            return None
         nicknames = arg.split("#")
         nickname = nicknames[0]
         tag = nicknames[1]
@@ -132,6 +131,3 @@ class LOLAPI():
                 print(f"[{formatted_time}]현재 게임중이 아닙니다.")
                 return(("현재 게임중이 아닙니다."),-1)
 
-
-if __name__ == "__main__":
-    lolapi = LOLAPI()

@@ -58,7 +58,6 @@ async def 메이플(ctx,arg):
             print(nexon_maple_basic_dto)
             maple_service.save_maple_basic(nexon_maple_basic_dto)
             maple_basic_dto = maple_service.get_maple_basic(ocid = ocid_dto.ocid)
-
         embed=discord.Embed(title="메이플 캐릭터 정보", color=0xff7300)
         embed.set_thumbnail(url=f"{maple_basic_dto.image}")
         embed.add_field(name="닉네임", value=f"{ocid_dto.nickname}", inline=True)
@@ -139,9 +138,8 @@ async def 도움말(ctx):
 
 @bot.command()
 async def 점메추(ctx):
-    lunchModel = lunch.lunch()
-    menu = lunchModel.get_lunch()
-    await ctx.channel.send(f"{ctx.message.author.mention}님! 점심으로 {menu} 어떤가요?")
+    menu = lunch_service.get_random_menu()
+    await ctx.channel.send(f"{ctx.message.author.mention}님! 점심으로 {menu.lunch} 어떤가요?")
     if menu == "왕돈가스":
         if ctx.author.voice and ctx.author.voice.channel:
             channel = ctx.author.voice.channel

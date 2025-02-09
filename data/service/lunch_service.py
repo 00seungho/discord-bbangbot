@@ -12,7 +12,7 @@ class LunchService:
             lunch=lunch.lunch
         )
 
-    def get_random_menu(self):
+    def get_random_menu(self) -> LunchDTO:
         """
         랜덤한 메뉴를 가져오는 서비스 메서드
         """

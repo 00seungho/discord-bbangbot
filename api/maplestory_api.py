@@ -12,7 +12,7 @@ class MaplestoryAPI():
          "x-nxopen-api-key": self.api_key
         }
 
-    def get_nexon_to_ocid(self,characterName):
+    def get_nexon_to_ocid(self,characterName) -> OcidDTO:
         """
         캐릭터의 이름을 받아 넥슨 api에서 ocid를 조회하는 함수
         return: OcidDTO
